@@ -2,11 +2,15 @@ package klom.spring.spring_in_action.security;
 
 import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Bean;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
@@ -22,9 +26,23 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         .access("hasRole('ROLE_USER')")
         .antMatchers("/", "/**").access("permitAll")
         .and()
-        .httpBasic();
+        .formLogin()
+        .loginPage("/login")
+        .and()
+        .logout()
+        .logoutSuccessUrl("/")
+
+        .and()
+        .csrf();
   }
 
+  @Autowired
+  private UserRepositoryUserDetailsService userDetailsService;
+
+  @Bean
+  public PasswordEncoder encoder() {
+    return new BCryptPasswordEncoder();
+  }
   @Override
   protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 //    auth.inMemoryAuthentication()
@@ -46,16 +64,19 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 //            + "where username=?"
 //    ).passwordEncoder(new NoEncodingPasswordEncoder());
 
-    auth
-        .ldapAuthentication()
-        .userSearchBase("on=people")
-        .userSearchFilter("(uid={0})")
-        .groupSearchBase("on=groups")
-        .groupSearchFilter("member={0}")
-        .passwordCompare()
-        .passwordEncoder(new BCryptPasswordEncoder())
-        .passwordAttribute("userPasscode");
+//    auth
+//        .ldapAuthentication()
+//        .userSearchBase("on=people")
+//        .userSearchFilter("(uid={0})")
+//        .groupSearchBase("on=groups")
+//        .groupSearchFilter("member={0}")
+//        .passwordCompare()
+//        .passwordEncoder(new BCryptPasswordEncoder())
+//        .passwordAttribute("userPasscode");
 //        .contextSource().root("dc=tacocloud,dc=com");
 //        .url("ldap://tacocloud.com:389/dc=tacocloud,dc=com")
+    auth
+        .userDetailsService(userDetailsService)
+        .passwordEncoder(encoder());
   }
 }

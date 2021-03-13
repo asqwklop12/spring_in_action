@@ -25,8 +25,9 @@ public class Order implements Serializable {
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
   private Long id;
-
   private Date placedAt;
+  @ManyToOne
+  private User user;
   @NotBlank(message = "Name is required!")
   private String deliveryName;
   @NotBlank(message = "Street is required!")
@@ -47,8 +48,7 @@ public class Order implements Serializable {
 
   @ManyToMany(targetEntity = Taco.class)
   private List<Taco> tacos = new ArrayList<>();
-  @ManyToOne
-  private User user;
+
 
   public void addDesign(Taco taco) {
     this.tacos.add(taco);
