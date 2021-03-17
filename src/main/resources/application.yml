@@ -13,6 +13,15 @@ spring:
     port: 61617
     user: tacoweb
     password: l3tm31n
+  profiles: prod
+  rabbitmq:
+    host: rabbit.tacocloud.com
+    port: 5673
+    username: tacoweb
+    password: l3tm31n
+    template:
+      exchange: tacocloud.orders
+      routing-key: kichens.central
 #  jms:
 #    template:
 #      default-destination: tacocloud.order.queue
