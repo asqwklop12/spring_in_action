@@ -11,6 +11,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.jms.support.converter.MappingJackson2MessageConverter;
+import org.springframework.jms.support.converter.MessageConverter;
 
 @SpringBootApplication
 public class SpringInActionApplication {
@@ -25,7 +26,7 @@ public class SpringInActionApplication {
   }
 
   @Bean
-  public MappingJackson2MessageConverter messageConverter() {
+  public MessageConverter messageConverter() {
     var messageConverter = new MappingJackson2MessageConverter();
     messageConverter.setTypeIdPropertyName("_typeId");
     Map<String, Class<?>> typeIdMappings = new HashMap<>();
