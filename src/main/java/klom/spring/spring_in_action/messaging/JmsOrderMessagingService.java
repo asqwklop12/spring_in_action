@@ -24,7 +24,7 @@ public class JmsOrderMessagingService implements OrderMessagingService {
   public void sendOrder(Order order) {
     jmsTemplate.send(
 //        orderQueue
-        "tacocloud.order.queue"
+        "t"
         , session -> session.createObjectMessage(order));
   }
   public void sendOrderAfter(Order order) {
