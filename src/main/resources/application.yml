@@ -32,3 +32,12 @@ spring:
 taco:
   orders:
     page-size: 10
+tacocloud:
+    email:
+      host: imap.tacoclud.com
+      mailbox: INBOx
+      username: taco-in-flow
+      passwod: 1L0v3T4c0s
+      poll-rate: 10000
+    api:
+      url: http://api.tacoclud.com

@@ -4,7 +4,6 @@ import klom.spring.spring_in_action.Order;
 import klom.spring.spring_in_action.messaging.KitchenUi;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.messaging.Message;
@@ -25,12 +24,15 @@ public class OrderListener {
   public void handle(Order order) {
     ui.displayOrder(order);
   }
+
   @KafkaListener(topics = "tacocloud.orders.topic")
-  public void handle(Order order, ConsumerRecord<Order,Void> record) {
+  public void handle(Order order, ConsumerRecord<Order, Void> record) {
 //    ui.displayOrder(order);
-    log.info("Received from partition {} with timestamp {}", record.partition(),record.timestamp());
+    log.info("Received from partition {} with timestamp {}", record.partition(),
+        record.timestamp());
     ui.displayOrder(order);
   }
+
   @KafkaListener(topics = "tacocloud.orders.topic")
   public void handle(Order order, Message<Order> message) {
     MessageHeaders headers = message.getHeaders();
