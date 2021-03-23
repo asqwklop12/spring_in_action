@@ -3,9 +3,11 @@ package klom.spring.spring_in_action.flux;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 import reactor.util.function.Tuple2;
 
@@ -143,6 +145,7 @@ class SampleTest {
         .expectNext("Barbosa eats Apples")
         .verifyComplete();
   }
+
   @Test
   public void firstFlux() {
     Flux<String> characterFlux = Flux
@@ -158,32 +161,110 @@ class SampleTest {
         .expectNext("Apples")
         .verifyComplete();
   }
+
   @Test
   public void skipAFew() {
     Flux<String> skipFlux = Flux
-        .just("one", "two", "skip a few", "ninety nine","one hundred")
+        .just("one", "two", "skip a few", "ninety nine", "one hundred")
         .skip(3);
     StepVerifier.create(skipFlux)
-        .expectNext("ninety nine","one hundred")
+        .expectNext("ninety nine", "one hundred")
         .verifyComplete();
   }
+
   @Test
   public void skipAFewSeconds() {
     Flux<String> skipFlux = Flux
-        .just("one", "two", "skip a few", "ninety nine","one hundred")
+        .just("one", "two", "skip a few", "ninety nine", "one hundred")
         .delayElements(Duration.ofSeconds(1))
         .skip(Duration.ofSeconds(4));
     StepVerifier.create(skipFlux)
-        .expectNext("ninety nine","one hundred")
+        .expectNext("ninety nine", "one hundred")
         .verifyComplete();
   }
+
   @Test
   public void take() {
     Flux<String> skipFlux = Flux
-        .just("one", "two", "skip a few", "ninety nine","one hundred")
+        .just("one", "two", "skip a few", "ninety nine", "one hundred")
         .take(3);
     StepVerifier.create(skipFlux)
         .expectNext("one", "two", "skip a few")
+        .verifyComplete();
+  }
+
+  @Test
+  void filter() {
+    Flux<String> nationalParkFlux = Flux.just(
+        "Yellowstone", "Yosemite", "Grand Canyon",
+        "Zion", "Grand Teuton"
+    ).filter(np -> !np.contains(" "));
+
+    StepVerifier.create(nationalParkFlux)
+        .expectNext("Yellowstone", "Yosemite", "Zion")
+        .verifyComplete();
+  }
+
+  @Test
+  void distinct() {
+    Flux<String> animalFlux = Flux.just(
+        "dog", "cat", "bird", "dog", "bird", "anteater"
+    ).distinct();
+    StepVerifier.create(animalFlux)
+        .expectNext("dog", "cat", "bird", "anteater")
+        .verifyComplete();
+  }
+
+  @Test
+  void collectList() {
+    Flux<String> fruitFlux = Flux.just("apple", "orange", "banana", "kiwi", "strawberry");
+    Mono<List<String>> fruitListMono = fruitFlux.collectList();
+    StepVerifier.create(fruitListMono)
+        .expectNext(Arrays.asList("apple", "orange", "banana", "kiwi", "strawberry"))
+        .verifyComplete();
+  }
+
+  @Test
+  void collectMap() {
+    Flux<String> animalFlux = Flux.just("aardvark", "elephant", "koala", "eagle", "kangaroo");
+    Mono<Map<Object, String>> animalMapMono = animalFlux.collectMap(a -> a.charAt(0));
+    StepVerifier
+        .create(animalMapMono)
+        .expectNextMatches(map -> map.size() == 3 &&
+            map.get('a').equals("aardvark") &&
+            map.get('e').equals("eagle") &&
+            map.get('k').equals("kangaroo"))
+        .verifyComplete();
+  }
+
+  @Test
+  void all() {
+    Flux<String> animalFlux = Flux.just("aardvark", "elephant", "koala", "eagle", "kangaroo");
+    Mono<Boolean> hasAMono = animalFlux.all(a -> a.contains("a"));
+    StepVerifier
+        .create(hasAMono)
+        .expectNext(true)
+        .verifyComplete();
+
+    Mono<Boolean> hasAMono2 = animalFlux.all(a -> a.contains("k"));
+    StepVerifier
+        .create(hasAMono2)
+        .expectNext(false)
+        .verifyComplete();
+  }
+  @Test
+  void any() {
+    Flux<String> animalFlux = Flux.just("aardvark", "elephant", "koala", "eagle", "kangaroo");
+    Mono<Boolean> hasAMono = animalFlux.any(a -> a.contains("t"));
+    StepVerifier
+        .create(hasAMono)
+        .expectNext(true)
+        .verifyComplete();
+
+    Mono<Boolean> hasAMono2 = animalFlux.any(a -> a.contains("z"));
+    StepVerifier
+        .create(hasAMono2)
+        .expectNext(false)
         .verifyComplete();
   }
 
